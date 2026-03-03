@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_KEY = '8b6c21160156fdefc84d351522eacf5f';
-const BASE_URL = 'http://api.weatherstack.com';
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+const BASE_URL = 'https://api.weatherstack.com';
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
 const apiClient = axios.create({
