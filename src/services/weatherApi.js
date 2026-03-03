@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-const BASE_URL = 'https://api.weatherstack.com';
+const BASE_URL = '/api';
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
 const apiClient = axios.create({
@@ -46,7 +45,7 @@ const setCachedData = (cacheKey, data) => {
 
 const handleResponse = (response) => {
   if (response.data.error) {
-    const error = new Error(response.data.error.info || 'API Error');
+    const error = new Error(response.data.error.info || response.data.error || 'API Error');
     error.code = response.data.error.code;
     error.type = response.data.error.type;
     throw error;
@@ -65,7 +64,7 @@ const handleError = (error) => {
   if (error.response) {
     const { data } = error.response;
     if (data && data.error) {
-      const apiError = new Error(data.error.info || `Error ${data.error.code}: API request failed`);
+      const apiError = new Error(data.error.info || data.error || `Error ${data.error.code}: API request failed`);
       apiError.code = data.error.code;
       throw apiError;
     }
@@ -83,10 +82,10 @@ export const weatherApi = {
     if (cached) return cached;
 
     try {
-      const response = await apiClient.get('/current', {
+      const response = await apiClient.get('/weather', {
         params: {
-          access_key: API_KEY,
-          query,
+          endpoint: 'current',
+          location: query,
           units,
         },
       });
@@ -104,11 +103,11 @@ export const weatherApi = {
     if (cached) return cached;
 
     try {
-      const response = await apiClient.get('/forecast', {
+      const response = await apiClient.get('/weather', {
         params: {
-          access_key: API_KEY,
-          query,
-          forecast_days: days,
+          endpoint: 'forecast',
+          location: query,
+          days,
           units,
         },
       });
@@ -126,11 +125,11 @@ export const weatherApi = {
     if (cached) return cached;
 
     try {
-      const response = await apiClient.get('/historical', {
+      const response = await apiClient.get('/weather', {
         params: {
-          access_key: API_KEY,
-          query,
-          historical_date: historicalDate,
+          endpoint: 'historical',
+          location: query,
+          date: historicalDate,
           units,
         },
       });
@@ -148,10 +147,10 @@ export const weatherApi = {
     if (cached) return cached;
 
     try {
-      const response = await apiClient.get('/marine', {
+      const response = await apiClient.get('/weather', {
         params: {
-          access_key: API_KEY,
-          query,
+          endpoint: 'marine',
+          location: query,
           units,
         },
       });
@@ -166,10 +165,10 @@ export const weatherApi = {
   getLocations: async (query) => {
     // No caching for autocomplete - needs to be fresh
     try {
-      const response = await apiClient.get('/autocomplete', {
+      const response = await apiClient.get('/weather', {
         params: {
-          access_key: API_KEY,
-          query,
+          endpoint: 'autocomplete',
+          location: query,
         },
       });
       return handleResponse(response);
